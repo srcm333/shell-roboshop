@@ -24,7 +24,7 @@ VALIDATE(){
         echo -e "$TIMAESTAMP [ERROR] $2 ... $R FAILURE $N" | tee -a $LOGS_FILE
         exit 1
     else
-        echo -e "$TIMAESTAMP [INFO] $2 ... $R SUCCESS $N" | tee -a $LOGS_FILE
+        echo -e "$TIMAESTAMP [INFO] $2 ... $G SUCCESS $N" | tee -a $LOGS_FILE
     fi
         
 }
@@ -37,3 +37,9 @@ VALIDATE $? "Installing MongoDB"
 
 systemctl enable --now mongod
 VALIDATE $? "Strating and enabling MongoDB"
+
+sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongod.conf
+VALIDATE $? "Allowing remote connections to MongoDB"
+
+systemctl restart mongod
+VALIDATE $? "Restarting MongoDB"
