@@ -31,3 +31,6 @@ VALIDATE(){
 
 cp mango.repo /etc/yum.repos.d/mongo.repo
 VALIDATE $? "ADDING Mongo repo"
+
+dnf install mangodb-org -y &>> $LOGS_FILE
+VALIDATE $? "Installing MongoDB"
