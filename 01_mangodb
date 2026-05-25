@@ -1,8 +1,8 @@
 #!/bin/bash
 
-LOGS_FoLDER="/var/log/roboshop"
+LOGS_FOLDER="/var/log/roboshop"
 sudo mkdir -p $LOGS_FoLDER
-sudo chown -R ec2-user:ec2-user $LOGS_FoLDER
+sudo chown -R ec2-user:ec2-user $LOGS_FOLDER
 sudo chmod -R 755 $LOGS_FoLDER
 LOGS_FILES="$LOGS_FOLDER/$0.log"
 
@@ -32,5 +32,5 @@ VALIDATE(){
 cp mongo.repo /etc/yum.repos.d/mongo.repo
 VALIDATE $? "ADDING Mongo repo"
 
-dnf install mongodb-org -y &>> $LOGS_FILE
+dnf install mongodb-org -y &>> $LOGS_FILES
 VALIDATE $? "Installing MongoDB"
