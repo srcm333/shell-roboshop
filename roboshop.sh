@@ -35,22 +35,22 @@ do
   --change-batch '
     {
   "comment": "update A record to new IP",
-   "change":[
-     {
-       "Action": "UPSERT",
-       "ResourceRecordSet": {
-          "Name": "'$R53_RECORD'",
-          "Type": "A",
-          "TTL": 1,
-          "ResourceRecords": [
-            {
-              "Value": "'$IP'"
-            }
-          ]
+    "change":[
+      {
+        "Action": "UPSERT",
+        "ResourceRecordSet": {
+           "Name": "'$R53_RECORD'",
+           "Type": "A",
+           "TTL": 1,
+           "ResourceRecords": [
+             {
+               "Value": "'$IP'"
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-'  
+      ]
+    }
+  '
 done
  
