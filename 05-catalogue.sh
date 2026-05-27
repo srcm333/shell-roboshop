@@ -58,7 +58,7 @@ VALIDATE $? "Downloaded and extracted catalogue code"
 npm install &>>$LOGS_FILE
 VALIDATE $? "Installing dependencies"
 
-cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogeu.service
+cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
 VALIDATE $? "Created systemctl service"
 
 cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo
@@ -67,18 +67,7 @@ VALIDATE $? "Added Mongo repo"
 dnf install mongodb-mongosh -y &>>$LOGS_FILE
 VALIDATE $? "Installed MongoDB client"
 
-INDEX=$(mongosh --host mongodb.devpreactice.online --eval 'db.getMongo().getDBNames().indexOf("catalogue")')
 
-if [ $INDEX -lt 0 ]; then
-    mongosh --host mongodb.devpreactice.online </app/db/master-data.js &>>$LOGS_FILE
-    VALIDATE $? "Load Products"
-else
-    echo -e "Products already loaded ... $Y SKIPPING $N"
-fi
-
-systemctl enable catalogue &>>$LOGS_FILE
-systemctl restart catalogue &>>$LOGS_FILE
-VALIDATE $? "Restarting catalogue"
 
 
 
