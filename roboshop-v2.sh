@@ -17,7 +17,7 @@ fi
 ACTION=$1
 shift # first argument will be removed, $@ does not have 
 
-if [ "$ACTION" -ne "create" ] && [ "$ACTION" -ne "delete" ]; then
+if [ "$ACTION" != "create" ] && [ "$ACTION" != "delete" ]; then
      echo -e "$R ERROR:: First argument must be either cerate or delete"
      echo "USAGE: $0 [create/delete] [instance1] [instance2...]"
      exit 1
