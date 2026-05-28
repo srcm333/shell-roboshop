@@ -2,28 +2,30 @@
 
 export PATH=$PATH:/usr/local/bin
 
+#export PATH=$PATH:/usr/local/bin
+
 AMI_ID="ami-0220d79f3f480ecf5"
-ZONE_ID="Z07343973IZWQHPNL7C9J" # replace with your zone ID
+ZONE_ID="Z07086101C1CVP7AT2UK4" # replace with your zone ID
 DOMAIN_NAME="devpreactice.online" # replace with your domain name
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
 
-###Validation ###
+### Validation ###
 if [ $# -lt 2 ]; then
-     echo -e "$R ERROR:: Atleast 2 arguments required $N"
-     echo "USAGE: $0 [ create/delete ] [instance1] [instance2...]"
-     exit 1
+    echo -e "$R ERROR:: Atleast 2 arguments required $N"
+    echo "USAGE: $0 [create/delete] [instance1] [instance2...]"
+    exit 1
 fi
 
 ACTION=$1
-shift # first argument will be removed, $@ does not have 
+shift # first argument will be removed
 
 if [ "$ACTION" != "create" ] && [ "$ACTION" != "delete" ]; then
-     echo -e "$R ERROR:: First argument must be either cerate or delete $N"
-     echo "USAGE: $0 [create/delete] [instance1] [instance2...]"
-     exit 1
+    echo -e "$R ERROR:: First argument must be either create or delete $N"
+    echo "USAGE: $0 [create/delete] [instance1] [instance2...]"
+    exit 1
 fi
 
 get_instance_id(){
@@ -53,7 +55,50 @@ do
             echo "roboshop-$instance already running: $INSTANCE_ID"
         fi
 
-     fi  
+        # update R53 record
+        if [ $instance == "frontend" ]; then
+            IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --output text
+            )
+            R53_RECORD="$DOMAIN_NAME"
+        else
+            IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID \
+            --query 'Reservations[*].Instances[*].PrivateIpAddress' \
+            --output text
+            )
+            R53_RECORD="$instance.$DOMAIN_NAME"
+        fi
+
+        aws route53 change-resource-record-sets \
+        --hosted-zone-id $ZONE_ID \
+        --change-batch '
+            {
+                "Comment": "Update A record to new IP",
+                "Changes": [
+                    {
+                        "Action": "UPSERT",
+                        "ResourceRecordSet": {
+                            "Name": "'$R53_RECORD'",
+                            "Type": "A",
+                            "TTL": 1,
+                            "ResourceRecords": [
+                                {
+                                    "Value": "'$IP'"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        '
+        echo "updated R53 record for: $instance"
+    else
+        if [ $INSTANCE_ID == "None" ]; then
+            echo "$instance already destroyed, nothing to do..."
+        else
+            aws ec2 terminate-instances --instance-ids $INSTANCE_ID
+            echo "Terminating Instance: $instance"
+        fi
+    fi
 done
-
-
